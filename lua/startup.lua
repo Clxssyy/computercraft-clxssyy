@@ -5,9 +5,9 @@ textColor = colors.white
 selectedItem = 1
 
 -- Mining
-rows = 1
-cols = 3
-height = 3
+rows = 16
+cols = 16
+height = 16
 
 -- [[UTILS]] --
 function error(message)
@@ -305,7 +305,7 @@ function refuel()
     for i = 1, 16 do
         turtle.select(i)
         if turtle.refuel(0) then
-            print("Refueled with " .. turtle.getItemCount(i) .. " " .. turtle.getItemDetail(i).displayName)
+            print("Refueled with " .. turtle.getItemCount(i) .. " " .. turtle.getItemDetail(i).name)
             turtle.refuel()
             print("Fuel level: " .. turtle.getFuelLevel())
             io.read()
