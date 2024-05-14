@@ -59,15 +59,15 @@ function onKeyPressed(key, menu)
     elseif key == keys.d then
         action = selectedItem
         selectedItem = 1
-        os.sleep(0.1)
+        os.sleep(0.01)
         menu[action].action()
     elseif key == keys.a then
         selectedItem = 1
-        os.sleep(0.1)
+        os.sleep(0.01)
         menu[#menu].action()
     elseif key == keys.space then
         selectedItem = 1
-        os.sleep(0.1)
+        os.sleep(0.01)
         menu[1].action()
     end
 end
