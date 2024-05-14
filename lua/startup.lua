@@ -87,6 +87,51 @@ function showMainMenu()
     end
 end
 
+function showSystemMenu()
+    while true do
+        printMenu(systemMenu, "System")
+
+        event, key = os.pullEvent("key")
+        onKeyPressed(key, systemMenu)
+    end
+end
+
+function showMineConfigMenu()
+    while true do
+        printMenu(mineConfigMenu, "Mining Config")
+
+        event, key = os.pullEvent("key")
+        onKeyPressed(key, mineConfigMenu)
+    end
+end
+
+function showFuelingMenu()
+    while true do
+        printMenu(fuelingMenu, "Fueling")
+
+        event, key = os.pullEvent("key")
+        onKeyPressed(key, fuelingMenu)
+    end
+end
+
+function showSettingsMenu()
+    while true do
+        printMenu(settingsMenu, "Settings")
+
+        event, key = os.pullEvent("key")
+        onKeyPressed(key, settingsMenu)
+    end
+end
+
+function showLabelingMenu()
+    while true do
+        printMenu(labelingMenu, "Labeling")
+
+        event, key = os.pullEvent("key")
+        onKeyPressed(key, labelingMenu)
+    end
+end
+
 -- [[ACTIONS]] --
 function mine()
     term.clear()
@@ -155,7 +200,7 @@ end
 -- [[MENUS]] --
 mainMenu =  {
     [1] = {
-        name = "Mine",
+        name = "Mining",
         action = showMineMenu,
     },
     [2] = {
@@ -185,15 +230,15 @@ mineMenu = {
 
 mineConfigMenu = {
     [1] = {
-        name = "Rows",
+        name = "Set Rows",
         action = setRows,
     },
     [2] = {
-        name = "Cols",
+        name = "Set Cols",
         action = setCols
     },
     [3] = {
-        name = "Height",
+        name = "Set Height",
         action = setHeight
     },
     [4] = {
@@ -204,7 +249,7 @@ mineConfigMenu = {
 
 systemMenu = {
     [1] = {
-        name = "Fuel",
+        name = "Fueling",
         action = showFuelingMenu,
     },
     [2] = {
@@ -223,7 +268,7 @@ fuelingMenu = {
         action = refuel,
     },
     [2] = {
-        name = "Check",
+        name = "Check Fuel",
         action = getFuelLevel
     },
     [3] = {
@@ -234,7 +279,7 @@ fuelingMenu = {
 
 settingsMenu = {
     [1] = {
-        name = "Label",
+        name = "Labeling",
         action = showLabelingMenu,
     },
     [2] = {
@@ -245,11 +290,11 @@ settingsMenu = {
 
 labelingMenu = {
     [1] = {
-        name = "Set",
+        name = "Set Label",
         action = setLabel,
     },
     [2] = {
-        name = "Remove",
+        name = "Remove Label",
         action = removeLabel
     },
     [3] = {
