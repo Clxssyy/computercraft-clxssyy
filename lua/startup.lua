@@ -296,6 +296,35 @@ function setHeight()
     io.read()
 end
 
+function refuel()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    print("Refueling...")
+
+    for i = 1, 16 do
+        turtle.select(i)
+        if turtle.refuel(0) then
+            print("Refueled with " .. turtle.getItemCount(i) .. " " .. turtle.getItemDetail(i).displayName)
+            turtle.refuel()
+            print("Fuel level: " .. turtle.getFuelLevel())
+            io.read()
+            return
+        end
+    end
+
+    error("No fuel found")
+    io.read()
+end
+
+function getFuelLevel()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    print("Fuel level: " .. turtle.getFuelLevel())
+    io.read()
+end
+
 -- [[MENUS]] --
 mainMenu =  {
     [1] = {
