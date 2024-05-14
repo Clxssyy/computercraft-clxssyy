@@ -5,7 +5,7 @@ textColor = colors.white
 selectedItem = 1
 
 -- Mining
-rows = 3
+rows = 1
 cols = 3
 height = 3
 
@@ -59,12 +59,15 @@ function onKeyPressed(key, menu)
     elseif key == keys.d then
         action = selectedItem
         selectedItem = 1
+        os.sleep(0.1)
         menu[action].action()
     elseif key == keys.a then
         selectedItem = 1
+        os.sleep(0.1)
         menu[#menu].action()
     elseif key == keys.space then
         selectedItem = 1
+        os.sleep(0.1)
         menu[1].action()
     end
 end
@@ -195,6 +198,102 @@ function mine()
         turtle.turnRight()
         turtle.turnRight()
     end
+end
+
+function setRows()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    io.write("---={ ")
+    term.setTextColor(colors.lime)
+    io.write("Set Rows")
+    term.setTextColor(textColor)
+    print(" }=---\n")
+    io.write("Current: ")
+    term.setTextColor(colors.lime)
+    print(rows)
+    term.setTextColor(textColor)
+    io.write("New: ")
+    term.setTextColor(colors.yellow)
+    local newRows = tonumber(io.read())
+
+    if newRows == nil then
+        error("Rows must be a number")
+        io.read()
+        return
+    end
+    if newRows < 1 then
+        error("Rows must be greater than 0")
+    end
+
+    rows = newRows
+
+    term.setTextColor(textColor)
+    io.read()
+end
+
+function setCols()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    io.write("---={ ")
+    term.setTextColor(colors.lime)
+    io.write("Set Cols")
+    term.setTextColor(textColor)
+    print(" }=---\n")
+    io.write("Current: ")
+    term.setTextColor(colors.lime)
+    print(cols)
+    term.setTextColor(textColor)
+    io.write("New: ")
+    term.setTextColor(colors.yellow)
+    local newCols = tonumber(io.read())
+
+    if newCols == nil then
+        error("Cols must be a number")
+        io.read()
+        return
+    end
+    if newCols < 1 then
+        error("Cols must be greater than 0")
+    end
+
+    cols = newCols
+
+    term.setTextColor(textColor)
+    io.read()
+end
+
+function setHeight()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    io.write("---={ ")
+    term.setTextColor(colors.lime)
+    io.write("Set Height")
+    term.setTextColor(textColor)
+    print(" }=---\n")
+    io.write("Current: ")
+    term.setTextColor(colors.lime)
+    print(height)
+    term.setTextColor(textColor)
+    io.write("New: ")
+    term.setTextColor(colors.yellow)
+    local newHeight = tonumber(io.read())
+
+    if newHeight == nil then
+        error("Height must be a number")
+        io.read()
+        return
+    end
+    if newHeight < 1 then
+        error("Height must be greater than 0")
+    end
+
+    height = newHeight
+
+    term.setTextColor(textColor)
+    io.read()
 end
 
 -- [[MENUS]] --
