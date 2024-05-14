@@ -325,6 +325,59 @@ function getFuelLevel()
     io.read()
 end
 
+function setLabel()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    io.write("---={ ")
+    term.setTextColor(colors.lime)
+    io.write("Set Label")
+    term.setTextColor(textColor)
+    print(" }=---\n")
+    io.write("Current: ")
+    term.setTextColor(colors.lime)
+    print(os.getComputerLabel() or "None")
+    term.setTextColor(textColor)
+    io.write("New: ")
+    term.setTextColor(colors.yellow)
+    local newLabel = io.read()
+
+    os.setComputerLabel(newLabel)
+
+    term.setTextColor(textColor)
+    io.read()
+end
+
+function removeLabel()
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    io.write("---={ ")
+    term.setTextColor(colors.lime)
+    io.write("Remove Label")
+    term.setTextColor(textColor)
+    print(" }=---\n")
+    io.write("Current: ")
+    term.setTextColor(colors.lime)
+    print(os.getComputerLabel() or "None")
+    term.setTextColor(textColor)
+    if os.getComputerLabel() == nil then
+        error("No label found")
+        io.read()
+        return
+    end
+    io.write("Remove? (y/n): ")
+    term.setTextColor(colors.yellow)
+    local remove = io.read()
+
+    if remove == "y" then
+        os.setComputerLabel(nil)
+    end
+
+    term.setTextColor(textColor)
+    io.read()
+end
+
 -- [[MENUS]] --
 mainMenu =  {
     [1] = {
