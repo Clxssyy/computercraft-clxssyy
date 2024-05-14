@@ -16,13 +16,6 @@ function error(message)
     term.setTextColor(textColor)
 end
 
-function exit()
-    repeat
-        local event, key = os.pullEvent("key")
-    until key == keys.q
-    print("Exiting...")
-end
-
 function even(num)
     return num % 2 == 0
 end
@@ -43,10 +36,10 @@ function printMenu(menu, title)
     for i = 1, #menu do
         if i == selectedItem then
             term.setTextColor(colors.lime)
-            print(">> " .. menu[i].name .. (menu[i].default and "*" or ""))
+            print(">> " .. menu[i].name .. (i == 1 and "*" or ""))
             term.setTextColor(textColor)
         else
-            print("   " .. menu[i].name .. (menu[i].default and "*" or ""))
+            print("   " .. menu[i].name .. (i == 1 and "*" or ""))
         end
     end
 
@@ -77,7 +70,7 @@ function onKeyPressed(key, menu)
 end
 
 -- [[PAGES]] --
-function mining()
+function showMineMenu()
     while true do
         printMenu(mineMenu, "Mining")
         event, key = os.pullEvent("key")
@@ -85,7 +78,7 @@ function mining()
     end
 end
 
-function main()
+function showMainMenu()
     while true do
         printMenu(mainMenu, "Menu")
 
@@ -163,16 +156,15 @@ end
 mainMenu =  {
     [1] = {
         name = "Mine",
-        action = mining,
-        default = true
+        action = showMineMenu,
     },
     [2] = {
         name = "System",
-        action = systemMenu
+        action = showSystemMenu
     },
     [3] = {
         name = "Return",
-        action = main
+        action = showMainMenu
     }
 }
 
@@ -180,51 +172,48 @@ mineMenu = {
     [1] = {
         name = "Start",
         action = mine,
-        default = true
     },
     [2] = {
         name = "Config",
-        action = mineConfig
+        action = showMineConfigMenu
     },
     [3] = {
         name = "Return",
-        action = main
+        action = showMainMenu
     }
 }
 
 mineConfigMenu = {
     [1] = {
         name = "Rows",
-        action = mineRows,
-        default = true
+        action = setRows,
     },
     [2] = {
         name = "Cols",
-        action = mineCols
+        action = setCols
     },
     [3] = {
         name = "Height",
-        action = mineHeight
+        action = setHeight
     },
     [4] = {
         name = "Return",
-        action = mining
+        action = showMineMenu
     }
 }
 
 systemMenu = {
     [1] = {
         name = "Fuel",
-        action = fueling,
-        default = true
+        action = showFuelingMenu,
     },
     [2] = {
         name = "Settings",
-        action = settings
+        action = showSettingsMenu
     },
     [3] = {
         name = "Return",
-        action = main
+        action = showMainMenu
     }
 }
 
@@ -232,29 +221,42 @@ fuelingMenu = {
     [1] = {
         name = "Refuel",
         action = refuel,
-        default = true
     },
     [2] = {
         name = "Check",
-        action = checkFuel
+        action = getFuelLevel
     },
     [3] = {
         name = "Return",
-        action = system
+        action = showSystemMenu
     }
 }
 
 settingsMenu = {
     [1] = {
         name = "Label",
-        action = labeling,
-        default = true
+        action = showLabelingMenu,
     },
     [2] = {
         name = "Return",
-        action = system
+        action = showSystemMenu
+    }
+}
+
+labelingMenu = {
+    [1] = {
+        name = "Set",
+        action = setLabel,
+    },
+    [2] = {
+        name = "Remove",
+        action = removeLabel
+    },
+    [3] = {
+        name = "Return",
+        action = showSettingsMenu
     }
 }
 
 -- [[MAIN]] --
-main()
+showMainMenu()
