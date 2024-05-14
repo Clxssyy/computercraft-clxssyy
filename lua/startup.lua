@@ -64,10 +64,14 @@ function onKeyPressed(key, menu)
     elseif key == keys.s then
         selectedItem = math.min(#menu, selectedItem + 1)
     elseif key == keys.d then
-        menu[selectedItem].action()
+        action = selectedItem
+        selectedItem = 1
+        menu[action].action()
     elseif key == keys.a then
+        selectedItem = 1
         menu[#menu].action()
     elseif key == keys.space then
+        selectedItem = 1
         menu[1].action()
     end
 end
