@@ -219,6 +219,10 @@ function receiveMessages()
       end
       return
     elseif message[1] == "come" then
+      if message[2] == "all" then
+        rednet.send(id, "ERROR - Solo command", protocol)
+        return
+      end
       if not message[3] or not message[4] or not message[5] then
         rednet.send(id, "ERROR - Missing arguments", protocol)
         return
