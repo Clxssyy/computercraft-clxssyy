@@ -227,7 +227,7 @@ function receiveMessages()
         rednet.send(id, "ERROR - Missing arguments", protocol)
         return
       end
-      come(message[3], message[4], message[5])
+      parallel.waitForAny(come(message[3], message[4], message[5]), receiveMessages)
       return
     elseif message[1] == "refuel" then
       for i = 1, 16 do
