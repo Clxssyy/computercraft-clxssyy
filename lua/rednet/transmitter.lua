@@ -2,6 +2,11 @@ if not pocket then
   return
 end
 
+-- [[GLOBAL VARIABLES]] --
+textColor = colors.white
+protocol = "secret"
+selfCommandPrefix = "^!"
+
 function receive(message, id)
   term.setTextColor(colors.lime)
   io.write("[" .. id .. "] ")
@@ -53,24 +58,26 @@ function sendMessages()
   input = split(input, " ")
 
   -- [[Transmitter commands]]
-  if not input[2] then
+  if input[1]:find(selfCommandPrefix) ~= nil then
+    input[1] = input[1]:sub(#selfCommandPrefix)
     local command = string.lower(input[1])
     if command == "clear" then
       term.clear()
       term.setCursorPos(1, 1)
       showHeader()
       return
-    elseif command == "location" then
-      local x, y, z = gps.locate()
-      print("Location: " .. x .. ", " .. y .. ", " .. z)
-      return
     else
-      error("Usage: <message> <id> <args>")
+      error("Invalid command")
       return
     end
   end
 
   -- [[Receiver commands]]
+  if not input[2] then
+      error("Usage: <message> <id> <args>")
+      return
+  end
+
   if string.lower(input[2]) == "all" then -- Send to all computers with protocol
     rednet.broadcast(input, protocol)
     return
@@ -98,8 +105,6 @@ function main()
   end
 end
 
-textColor = colors.white
-protocol = "secret"
 rednet.open("back")
 
 main()
