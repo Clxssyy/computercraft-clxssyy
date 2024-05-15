@@ -19,21 +19,25 @@ function showHeader()
   io.write(" }=-----\n")
 end
 
-function calibrate()
+function calibrate(dig)
   rednet.send(id, "Calibrating...", protocol)
   local x, y, z = gps.locate()
   local facing = nil
   local turns = 0
 
   if turtle.detect() then
-    repeat
-      turtle.turnRight()
-      turns = turns + 1
-    until not turtle.detect() or turns == 4
+    if dig then
+      turtle.dig()
+    else
+      repeat
+        turtle.turnRight()
+        turns = turns + 1
+      until not turtle.detect() or turns == 4
 
-    if turns == 4 then
-      rednet.send(id, "ERROR - Stuck", protocol)
-      return
+      if turns == 4 then
+        rednet.send(id, "ERROR - Stuck", protocol)
+        return
+      end
     end
 
     turtle.forward()
@@ -103,8 +107,14 @@ function face(face, facing)
   end
 end
 
-function come(posX, posY , posZ)
-  local x, y, z, facing = calibrate()
+function come(posX, posY , posZ, dig)
+  if dig ~= "true" then
+    dig = false
+  else
+    dig = true
+  end
+
+  local x, y, z, facing = calibrate(dig)
   posX = math.floor(tonumber(posX))
   posY = math.floor(tonumber(posY)) - 1
   posZ = math.floor(tonumber(posZ))
@@ -128,8 +138,12 @@ function come(posX, posY , posZ)
     if dy > 0 then
       repeat
         if turtle.detectUp() then
-          rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y + 1 .. ", " .. z, protocol)
-          return
+          if dig then
+            turtle.digUp()
+          else
+            rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y + 1 .. ", " .. z, protocol)
+            return
+          end
         end
         turtle.up()
         y = y + 1
@@ -137,8 +151,12 @@ function come(posX, posY , posZ)
     else
       repeat
         if turtle.detectDown() then
-          rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y - 1 .. ", " .. z, protocol)
-          return
+          if dig then
+            turtle.digDown()
+          else
+            rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y - 1 .. ", " .. z, protocol)
+            return
+          end
         end
         turtle.down()
         y = y - 1
@@ -155,8 +173,12 @@ function come(posX, posY , posZ)
     end
     repeat
       if turtle.detect() then
-        rednet.send(id, "ERROR - Obstacle at " .. x - 1 .. ", " .. y .. ", " .. z, protocol)
-        return
+        if dig then
+          turtle.dig()
+        else
+          rednet.send(id, "ERROR - Obstacle at " .. x - 1 .. ", " .. y .. ", " .. z, protocol)
+          return
+        end
       end
       turtle.forward()
       if facing == "north" then
@@ -176,8 +198,12 @@ function come(posX, posY , posZ)
     end
     repeat
       if turtle.detect() then
-        rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y .. ", " .. z - 1, protocol)
-        return
+        if dig then
+          turtle.dig()
+        else
+          rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y .. ", " .. z - 1, protocol)
+          return
+        end
       end
       turtle.forward()
       if facing == "west" then
@@ -212,7 +238,7 @@ function receiveMessages()
         rednet.send(id, "ERROR - Missing arguments", protocol)
         return
       end
-      parallel.waitForAny(come(message[3], message[4], message[5]), receiveMessages)
+      parallel.waitForAny(come(message[3], message[4], message[5], message[6]), receiveMessages)
       return
     elseif message[1] == "refuel" then
       for i = 1, 16 do
