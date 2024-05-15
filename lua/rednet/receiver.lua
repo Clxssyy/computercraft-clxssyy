@@ -20,11 +20,11 @@ function receiveMessages()
     id, message = rednet.receive(protocol)
     receive(message, id)
   
-    if message == "location" then
+    if message[1] == "location" then
       local x, y, z = gps.locate()
       rednet.send(id, "Location: " .. x .. ", " .. y .. ", " .. z, protocol)
       return
-    elseif message == "stop" then
+    elseif message[1] == "stop" then
       rednet.send(id, "Stopping...", protocol)
       return
     end
