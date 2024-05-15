@@ -32,34 +32,49 @@ function receiveMessages()
   end
 end
 
+function split(input, separator)
+  local t = {}
+  for str in string.gmatch(input, "([^" .. separator .. "]+)") do
+    table.insert(t, str)
+  end
+  return t
+end
+
 function sendMessages()
   local input = read()
 
-  local message, id = input:match("(%S+)%s+(%S+)")
-  if id then
-    id = tonumber(id)
-    if id == nil then
-      error("Invalid ID")
-      return
-    end
-    -- check if id is a valid computer id
-    if not rednet.lookup(protocol, tostring(id)) then
-      error("Invalid ID")
-      return
-    end
-    rednet.send(id, message, protocol)
-  else
-    if input == "" then
-      error("Invalid input")
-      return
-    end
-    if input == "clear" then
-      term.clear()
-      term.setCursorPos(1, 1)
-      showHeader()
-      return
-    end
+  input = split(input, " ")
+
+  -- [[Transmitter commands]]
+  if input[1] == "clear" then
+    term.clear()
+    term.setCursorPos(1, 1)
+    showHeader()
+    return
+  end
+
+  -- [[Receiver commands]]
+  if not input[2] then
+    error("Usage: <message> <id> <args>")
+    return
+  end
+
+  if input[2] == "all" then -- Send to all computers with protocol
     rednet.broadcast(input, protocol)
+    return
+  else 
+    local id = tonumber(input[2])
+
+    if id == nil then -- Check if id is a number
+      error("Invalid ID")
+      return
+    elseif not rednet.lookup(protocol, tostring(id)) then -- Check if id is a valid computer id
+        error("ID not found")
+      return
+    end
+
+    rednet.send(id, input, protocol)
+    return
   end
 end
 
