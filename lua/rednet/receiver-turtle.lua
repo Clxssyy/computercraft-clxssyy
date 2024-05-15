@@ -25,8 +25,96 @@ function move()
   end
 end
 
-function come(posX, posY , posZ)
+function calibrate()
+  rednet.send(id, "Calibrating...", protocol)
   local x, y, z = gps.locate()
+  local facing = nil
+  local turns = 0
+
+  if turtle.detect() then
+    repeat
+      turtle.turnRight()
+      turns = turns + 1
+    until not turtle.detect() or turns == 4
+
+    if turns == 4 then
+      rednet.send(id, "ERROR - Stuck", protocol)
+      return
+    end
+
+    turtle.forward()
+  else
+    turtle.forward()
+  end
+  local x2, y2, z2 = gps.locate()
+  local dx = x2 - x
+  local dy = y2 - y
+  local dz = z2 - z
+
+  if dz == 1 then
+    facing = "south"
+  elseif dz == -1 then
+    facing = "north"
+  elseif dx == 1 then
+    facing = "east"
+  elseif dx == -1 then
+    facing = "west"
+  end
+
+  rednet.send(id, "Facing: " .. facing, protocol)
+  return x2, y2, z2, facing
+end
+
+function face(face, facing)
+  if face == "north" then
+    if facing == "east" then
+      turtle.turnRight()
+    elseif facing == "south" then
+      turtle.turnRight()
+      turtle.turnRight()
+    elseif facing == "west" then
+      turtle.turnLeft()
+    end
+    return "north"
+  elseif face == "east" then
+    if facing == "north" then
+      turtle.turnLeft()
+    elseif facing == "south" then
+      turtle.turnRight()
+    elseif facing == "west" then
+      turtle.turnRight()
+      turtle.turnRight()
+    end
+    return "east"
+  elseif face == "south" then
+    if facing == "north" then
+      turtle.turnRight()
+      turtle.turnRight()
+    elseif facing == "east" then
+      turtle.turnLeft()
+    elseif facing == "west" then
+      turtle.turnRight()
+    end
+    return "south"
+  elseif face == "west" then
+    if facing == "north" then
+      turtle.turnRight()
+    elseif facing == "east" then
+      turtle.turnRight()
+      turtle.turnRight()
+    elseif facing == "south" then
+      turtle.turnLeft()
+    end
+    return "west"
+  end
+end
+
+function come(posX, posY , posZ)
+  local x, y, z, facing = calibrate()
+  posX = math.floor(tonumber(posX))
+  posY = math.floor(tonumber(posY)) - 1
+  posZ = math.floor(tonumber(posZ))
+
   local dx = posX - x
   local dy = posY - y
   local dz = posZ - z
@@ -39,32 +127,71 @@ function come(posX, posY , posZ)
     return
   end
 
-  rednet.send(id, "Moving to " .. x .. ", " .. y .. ", " .. z, protocol)
+  rednet.send(id, "Attempting to move to " .. posX .. ", " .. posY .. ", " .. posZ, protocol)
 
-  while x ~= posX or y ~= posY or z ~= posZ do
-    if x < posX then
+  -- Up / Down
+  if dy ~= 0 then
+    if dy > 0 then
+      repeat
+        if turtle.detectUp() then
+          rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y + 1 .. ", " .. z, protocol)
+          return
+        end
+        turtle.up()
+        y = y + 1
+      until y == posY
+    else
+      repeat
+        if turtle.detectDown() then
+          rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y - 1 .. ", " .. z, protocol)
+          return
+        end
+        turtle.down()
+        y = y - 1
+      until y == posY
+    end
+  end
+
+  -- North / South (z)
+  if dz ~= 0 then
+    if dz > 0 then
+      facing = face("north", facing)
+    else
+      facing = face("south", facing)
+    end
+    repeat
+      if turtle.detect() then
+        rednet.send(id, "ERROR - Obstacle at " .. x - 1 .. ", " .. y .. ", " .. z, protocol)
+        return
+      end
       turtle.forward()
-      x = x + 1
-    elseif x > posX then
-      turtle.back()
-      x = x - 1
-    end
+      if facing == "north" then
+        z = z + 1
+      else
+        z = z - 1
+      end
+    until z == posZ
+  end
 
-    if y < posY then
-      turtle.up()
-      y = y + 1
-    elseif y > posY then
-      turtle.down()
-      y = y - 1
+  -- East / West (x)
+  if dx ~= 0 then
+    if dx > 0 then
+      facing = face("east", facing)
+    else
+      facing = face("west", facing)
     end
-
-    if z < posZ then
+    repeat
+      if turtle.detect() then
+        rednet.send(id, "ERROR - Obstacle at " .. x .. ", " .. y .. ", " .. z - 1, protocol)
+        return
+      end
       turtle.forward()
-      z = z + 1
-    elseif z > posZ then
-      turtle.back()
-      z = z - 1
-    end
+      if facing == "west" then
+        x = x - 1
+      else
+        x = x + 1
+      end
+    until x == posX
   end
 
   rednet.send(id, "Arrived at " .. x .. ", " .. y .. ", " .. z, protocol)
@@ -96,7 +223,7 @@ function receiveMessages()
         rednet.send(id, "ERROR - Missing arguments", protocol)
         return
       end
-      come(tonumber(message[3]), tonumber(message[4]), tonumber(message[5]))
+      come(message[3], message[4], message[5])
       return
     elseif message[1] == "refuel" then
       for i = 1, 16 do
