@@ -66,6 +66,25 @@ function sendMessages()
       term.setCursorPos(1, 1)
       showHeader()
       return
+    elseif command == "protocol" then
+      if not input[2] then
+        error("Usage: protocol <set/get> <protocol>")
+        return
+      end
+      
+      if string.lower(input[2]) == "set" then
+        if not input[3] then
+          error("Usage: protocol set <protocol>")
+          return
+        end
+
+        protocol = input[3]
+        print("Protocol set to " .. protocol)
+        return
+      elseif string.lower(input[2]) == "get" then
+        print("Current protocol: " .. protocol)
+        return
+      end
     else
       error("Invalid command")
       return
