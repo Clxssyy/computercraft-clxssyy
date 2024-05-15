@@ -108,10 +108,14 @@ function face(face, facing)
 end
 
 function come(posX, posY , posZ, dig)
-  if string.lower(dig) ~= "true" then
+  if not dig then
     dig = false
-  else
-    dig = true
+  else 
+    if string.lower(dig) ~= "true" then
+      dig = false
+    else
+      dig = true
+    end
   end
 
   local x, y, z, facing = calibrate(dig)
