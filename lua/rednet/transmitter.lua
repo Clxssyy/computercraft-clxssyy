@@ -71,7 +71,7 @@ function sendMessages()
   end
 
   -- [[Receiver commands]]
-  if string.lower(message[2]) == "all" then -- Send to all computers with protocol
+  if string.lower(input[2]) == "all" then -- Send to all computers with protocol
     rednet.broadcast(input, protocol)
     return
   else 
