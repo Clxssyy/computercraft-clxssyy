@@ -35,7 +35,14 @@ end
 function split(input, separator)
   local t = {}
   for str in string.gmatch(input, "([^" .. separator .. "]+)") do
-    table.insert(t, str)
+    if str == "MYPOSITION" then
+      local x, y, z = gps.locate()
+      table.insert(t, x)
+      table.insert(t, y)
+      table.insert(t, z)
+    else
+      table.insert(t, str)
+    end
   end
   return t
 end
