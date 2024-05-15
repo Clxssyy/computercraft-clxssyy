@@ -78,9 +78,9 @@ function face(face, facing)
     return "north"
   elseif face == "east" then
     if facing == "north" then
-      turtle.turnLeft()
-    elseif facing == "south" then
       turtle.turnRight()
+    elseif facing == "south" then
+      turtle.turnLeft()
     elseif facing == "west" then
       turtle.turnRight()
       turtle.turnRight()
@@ -91,19 +91,19 @@ function face(face, facing)
       turtle.turnRight()
       turtle.turnRight()
     elseif facing == "east" then
-      turtle.turnLeft()
-    elseif facing == "west" then
       turtle.turnRight()
+    elseif facing == "west" then
+      turtle.turnLeft()
     end
     return "south"
   elseif face == "west" then
     if facing == "north" then
-      turtle.turnRight()
+      turtle.turnLeft()
     elseif facing == "east" then
       turtle.turnRight()
       turtle.turnRight()
     elseif facing == "south" then
-      turtle.turnLeft()
+      turtle.turnRight()
     end
     return "west"
   end
@@ -115,9 +115,9 @@ function come(posX, posY , posZ)
   posY = math.floor(tonumber(posY)) - 1
   posZ = math.floor(tonumber(posZ))
 
-  local dx = posX - x
-  local dy = posY - y
-  local dz = posZ - z
+  local dx = x - posX
+  local dy = y - posY
+  local dz = z - posZ
   local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
   local fuel = turtle.getFuelLevel()
   local needed = distance + 1
@@ -166,9 +166,9 @@ function come(posX, posY , posZ)
       end
       turtle.forward()
       if facing == "north" then
-        z = z + 1
-      else
         z = z - 1
+      else
+        z = z + 1
       end
     until z == posZ
   end
@@ -176,9 +176,9 @@ function come(posX, posY , posZ)
   -- East / West (x)
   if dx ~= 0 then
     if dx > 0 then
-      facing = face("east", facing)
-    else
       facing = face("west", facing)
+    else
+      facing = face("east", facing)
     end
     repeat
       if turtle.detect() then
