@@ -54,12 +54,13 @@ function sendMessages()
 
   -- [[Transmitter commands]]
   if not input[2] then
-    if input[1] == "clear" then
+    local command = string.lower(input[1])
+    if command == "clear" then
       term.clear()
       term.setCursorPos(1, 1)
       showHeader()
       return
-    elseif input[1] == "location" then
+    elseif command == "location" then
       local x, y, z = gps.locate()
       print("Location: " .. x .. ", " .. y .. ", " .. z)
       return
@@ -70,7 +71,7 @@ function sendMessages()
   end
 
   -- [[Receiver commands]]
-  if input[2] == "all" then -- Send to all computers with protocol
+  if string.lower(message[2]) == "all" then -- Send to all computers with protocol
     rednet.broadcast(input, protocol)
     return
   else 

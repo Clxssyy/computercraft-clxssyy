@@ -108,7 +108,7 @@ function face(face, facing)
 end
 
 function come(posX, posY , posZ, dig)
-  if dig ~= "true" then
+  if string.lower(dig) ~= "true" then
     dig = false
   else
     dig = true
@@ -221,16 +221,18 @@ function receiveMessages()
   while true do
     id, message = rednet.receive(protocol)
     receive(message[1], id)
+
+    local command = string.lower(message[1])
   
-    if message[1] == "location" then
+    if command == "location" then
       local x, y, z = gps.locate()
       rednet.send(id, "Location: " .. x .. ", " .. y .. ", " .. z, protocol)
       return
-    elseif message[1] == "stop" then
+    elseif command == "stop" then
       rednet.send(id, "Stopping...", protocol)
       return
-    elseif message[1] == "come" then
-      if message[2] == "all" then
+    elseif command == "come" then
+      if string.lower(message[2]) == "all" then
         rednet.send(id, "ERROR - Solo command", protocol)
         return
       end
@@ -240,7 +242,7 @@ function receiveMessages()
       end
       parallel.waitForAny(come(message[3], message[4], message[5], message[6]), receiveMessages)
       return
-    elseif message[1] == "refuel" then
+    elseif command == "refuel" then
       for i = 1, 16 do
         turtle.select(i)
         if turtle.refuel(0) then
