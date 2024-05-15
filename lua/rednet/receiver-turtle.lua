@@ -19,12 +19,6 @@ function showHeader()
   io.write(" }=-----\n")
 end
 
-function move()
-  while true do
-    turtle.forward()
-  end
-end
-
 function calibrate()
   rednet.send(id, "Calibrating...", protocol)
   local x, y, z = gps.locate()
@@ -206,17 +200,8 @@ function receiveMessages()
       local x, y, z = gps.locate()
       rednet.send(id, "Location: " .. x .. ", " .. y .. ", " .. z, protocol)
       return
-    elseif message[1] == "move" then
-      rednet.send(id, "Moving...", protocol)
-      parallel.waitForAny(move, receiveMessages)
-      return
     elseif message[1] == "stop" then
       rednet.send(id, "Stopping...", protocol)
-      return
-    elseif message[1] == "test" then
-      for i = 3, #message do
-        rednet.send(id, "arg ".. i .. " " .. message[i], protocol)
-      end
       return
     elseif message[1] == "come" then
       if message[2] == "all" then
