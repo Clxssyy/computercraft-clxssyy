@@ -1,3 +1,7 @@
+if not turtle then
+  return
+end
+
 function receive(message, id)
   term.setTextColor(colors.lime)
   io.write("[" .. id .. "] ")
@@ -15,6 +19,12 @@ function showHeader()
   io.write(" }=-----\n")
 end
 
+function move()
+  while true do
+    turtle.forward()
+  end
+end
+
 function receiveMessages()
   while true do
     id, message = rednet.receive(protocol)
@@ -23,6 +33,10 @@ function receiveMessages()
     if message == "location" then
       local x, y, z = gps.locate()
       rednet.send(id, "Location: " .. x .. ", " .. y .. ", " .. z, protocol)
+      return
+    elseif message == "move" then
+      rednet.send(id, "Moving...", protocol)
+      parallel.waitForAny(move, receiveMessages)
       return
     elseif message == "stop" then
       rednet.send(id, "Stopping...", protocol)
@@ -43,6 +57,6 @@ end
 
 textColor = colors.white
 protocol = "secret"
-rednet.open("top")
+rednet.open("right")
 rednet.host(protocol, tostring(os.getComputerID()))
 main()
