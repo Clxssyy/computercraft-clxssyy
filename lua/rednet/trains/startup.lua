@@ -49,7 +49,9 @@ function displayMessage(message)
   if id then
     rednet.send(id, message, protocol)
   else
-    print(message)
+    term.setTextColor(colors.lime)
+    print("[+] " .. message)
+    term.setTextColor(textColor)
   end
 end
 
@@ -104,11 +106,17 @@ function trainAssemble()
     error("Station is not in assembly mode")
     return
   end
-  station.assemble()
+
+  if pcall(station.assemble) == false then
+    error("Missing train parts")
+    return
+  end
+  displayMessage("Train assembled")
 end
 
 function toggleAssemblyMode()
   station.setAssemblyMode(not station.isInAssemblyMode())
+  displayMessage("Assembly mode toggled")
 end
 
 function trainDisassemble()
@@ -116,7 +124,11 @@ function trainDisassemble()
     error("Station is in assembly mode")
     return
   end
-  station.disassemble()
+  if pcall(station.disassemble) == false then
+    error("No train to disassemble")
+    return
+  end
+  displayMessage("Train disassembled")
 end
 
 -- Utils
