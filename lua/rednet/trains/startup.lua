@@ -156,6 +156,43 @@ function trainDisassemble()
   displayMessage("Train disassembled")
 end
 
+function getTrainName()
+  if station.isTrainPresent() == false then
+    error("No train present")
+    return
+  end
+
+  displayMessage("Train name: " .. station.getTrainName())
+end
+
+function getStationName()
+  displayMessage("Station name: " .. stationName)
+end
+
+function setTrainName(name)
+  if name then
+    local newName = ""
+    for i = 1, #name do
+      if i == #name then
+        newName = newName .. name[i]
+        break
+      end
+      newName = newName .. name[i] .. " "
+    end
+    name = newName
+  else
+    error("No name provided")
+    return
+  end
+
+  if station.isTrainPresent() == false then
+    error("No train present")
+    return
+  end
+  station.setTrainName(name)
+  displayMessage("Train name set to: " .. name)
+end
+
 -- Utils
 function clear()
   setMonitorText()
@@ -214,6 +251,42 @@ registeredCommands = {
       [4] = {
         name = "disassemble",
         handler = trainDisassemble
+      },
+      [5] = {
+        name = "get",
+        options = {
+          [1] = {
+            name = "train",
+            handler = getTrainName
+          },
+          [2] = {
+            name = "name",
+            handler = getStationName
+          }
+        }
+      }
+    }
+  },
+  [4] = {
+    name = "train",
+    options = {
+      [1] = {
+        name = "set",
+        options = {
+          [1] = {
+            name = "name",
+            handler = setTrainName
+          }
+        }
+      },
+      [2] = {
+        name = "get",
+        options = {
+          [1] = {
+            name = "name",
+            handler = getTrainName
+          }
+        }
       }
     }
   }
