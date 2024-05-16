@@ -57,7 +57,7 @@ function setSchedule(requestedSchedule)
   local items = barrel.list()
 
   if #items == 0 then
-    print("No items in barrel")
+    error("No items in barrel")
     return
   else
     for i = 1, #items do
@@ -68,7 +68,7 @@ function setSchedule(requestedSchedule)
         end
       end
     end
-    print("Schedule not found")
+    error("Schedule not found")
   end
 end
 
