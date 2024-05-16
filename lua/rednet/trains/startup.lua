@@ -296,7 +296,7 @@ commandList = {}
 
 function executeCommand(command, commandList)
   for i = 1, #commandList do
-    if command[1] == commandList[i].name then -- Command found
+    if string.lower(command[1]) == commandList[i].name then -- Command found
       if commandList[i].handler then -- Check for a handler
         if #command == 1 then -- Command has no arguments
           commandList[i].handler()
