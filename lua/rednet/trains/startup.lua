@@ -40,7 +40,7 @@ function displayHeader()
   term.setCursorPos(1, 1)
   io.write("-----={ ")
   term.setTextColor(colors.lime)
-  io.write("ClassyTrain - " .. computerID)
+  io.write(stationName .. " - " .. computerID)
   term.setTextColor(textColor)
   io.write(" }=-----\n")
 end
@@ -61,6 +61,10 @@ function setMonitorText(text)
   if text then
     local newText = ""
     for i = 1, #text do
+      if i == #text then
+        newText = newText .. text[i]
+        break
+      end
       newText = newText .. text[i] .. " "
     end
     text = newText
@@ -101,6 +105,27 @@ function setSchedule(requestedSchedule)
   end
 end
 
+function setStationName(name)
+  if name then
+    local newName = ""
+    for i = 1, #name do
+      if i == #name then
+        newName = newName .. name[i]
+        break
+      end
+      newName = newName .. name[i] .. " "
+    end
+    name = newName
+  else
+    error("No name provided")
+    return
+  end
+
+  station.setStationName(name)
+  stationName = station.getStationName()
+  displayMessage("Station name set to: " .. name)
+end
+
 function trainAssemble()
   if station.isInAssemblyMode() == false then
     error("Station is not in assembly mode")
@@ -133,6 +158,7 @@ end
 
 -- Utils
 function clear()
+  setMonitorText()
   term.clear()
   term.setCursorPos(1, 1)
   displayHeader()
@@ -168,8 +194,12 @@ registeredCommands = {
         name = "set",
         options = {
           [1] = {
-            name = "station",
+            name = "schedule",
             handler = setSchedule
+          },
+          [2] = {
+            name = "name",
+            handler = setStationName
           }
         }
       },
