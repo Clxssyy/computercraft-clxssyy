@@ -28,8 +28,6 @@ variables = {
 
 }
 
-print(termX .. " " .. termY)
-
 -- [[SETUP]] --
 if pocket then
   rednet.open("back")
@@ -133,6 +131,11 @@ function run(input)
     type = "command",
     command = ""
   }
+
+  if input[1] == "all" then
+    error("Cannot send command to all computers")
+    return
+  end
 
   local id = tonumber(input[1])
   table.remove(input, 1)
