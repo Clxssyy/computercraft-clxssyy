@@ -169,11 +169,12 @@ scheduleGUI = {
     name = "Finish",
     action = function()
       scheduleCreated = true
+      clear()
     end
   }
 }
 
-function setSchedule()
+function setSchedule(input)
   if station.isTrainPresent() == false then
     error("No train present")
     return
@@ -182,13 +183,24 @@ function setSchedule()
   start = stationName
   destination = nil
 
-  local schedule = {}
+  if id then
+    rednet.send(id, {
+      type = "input",
+      message = "Enter destination",
+    }, protocol)
+    local senderID, senderMessage = rednet.receive(protocol)
+
+    if senderMessage then
+      destination = senderMessage
+      scheduleCreated = true
+    end
+  end
+
   while not scheduleCreated do
     displayGUI(scheduleGUI, "Schedule")
     local event, key = os.pullEvent("key")
     onKeyPressed(key, scheduleGUI)
   end
-  clear()
   if not destination then
     error("No destination provided")
     return
