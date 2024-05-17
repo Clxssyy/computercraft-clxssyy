@@ -4,6 +4,7 @@ end
 
 -- [[GLOBAL VARIABLES]] --
 textColor = colors.white
+headerColor = colors.lime
 protocol = "classy/train"
 computerID = os.getComputerID()
 rednet.open("right")
@@ -12,9 +13,18 @@ rednet.host(protocol, tostring(computerID))
 station = peripheral.wrap("left")
 stationName = station.getStationName()
 monitor = peripheral.wrap("top")
-barrel = peripheral.wrap("back")
+monitorX, monitorY = monitor.getSize()
+
+termX, termY = term.getSize()
 
 command = {}
+commandList = {}
+
+selectedItem = 1
+
+scheduleCreated = false
+start = nil
+destination = nil
 
 -- [[UTILS]] --
 function error(message)
@@ -27,6 +37,7 @@ function error(message)
   end
 end
 
+-- takes a string and a separator and returns a table of strings
 function split(input, separator)
   local t = {}
   for str in string.gmatch(input, "([^" .. separator .. "]+)") do
@@ -35,41 +46,105 @@ function split(input, separator)
   return t
 end
 
-function displayHeader()
-  term.clear()
-  term.setCursorPos(1, 1)
-  io.write("-----={ ")
-  term.setTextColor(colors.lime)
-  io.write(stationName .. " - " .. computerID)
+function displayHeader(text)
+  local textLength = string.len(text) + 2
+  local sideLength = math.floor((termX - textLength) / 2)
+  local side = ""
+
+  for i = 1, sideLength do
+    if i == sideLength then
+      side = side .. "|"
+    elseif i == sideLength - 1 then
+      side = side .. "="
+    else
+      side = side .. "-"
+    end
+  end
+
+  io.write(side)
+  term.setTextColor(headerColor)
+  io.write(" " .. text .. " ")
   term.setTextColor(textColor)
-  io.write(" }=-----\n")
+  if textLength % 2 == 0 then
+    side = "-" .. side
+  end
+  print(string.reverse(side))
 end
 
 function displayMessage(message)
   if id then
     rednet.send(id, message, protocol)
   else
-    term.setTextColor(colors.lime)
+    term.setTextColor(headerColor)
     print("[+] " .. message)
     term.setTextColor(textColor)
+  end
+end
+
+function displayGUI(menu, title)
+  term.clear()
+  term.setCursorPos(1, 1)
+
+  -- [[HEADER]] --
+  displayHeader(title)
+  print("")
+
+  -- [[ITEMS]] --
+  for i = 1, #menu do
+      if i == selectedItem then
+          term.setTextColor(headerColor)
+          print(">> " .. menu[i].name .. (menu[i].required == true and "*" or ""))
+          term.setTextColor(textColor)
+      else
+          print("   " .. menu[i].name .. (menu[i].required == true and "*" or ""))
+      end
+  end
+
+  -- [[FOOTER]] --
+  print("\n")
+
+  if term.getCursorPos() ~= termY- 1 then
+    term.setCursorPos(1, termY - 1)
+  end
+  displayHeader("<A>    <C>    <D>")
+end
+
+function onKeyPressed(key, menu)
+  if key == keys.w then
+      selectedItem = math.max(1, selectedItem - 1)
+  elseif key == keys.s then
+      selectedItem = math.min(#menu, selectedItem + 1)
+  elseif key == keys.d then
+      action = selectedItem
+      selectedItem = 1
+      os.sleep(0.01)
+      menu[action].action()
+  elseif key == keys.a then
+      selectedItem = 1
+      os.sleep(0.01)
+      menu[#menu].action()
+  end
+end
+
+function confirmAction(message, action)
+  io.write(message .. " (Y/N): ")
+  local input = io.read()
+  if input == "Y" or input == "y" then
+    if action then
+      action()
+    end
   end
 end
 
 -- [[COMMANDS]] --
 -- Monitor
 function setMonitorText(text)
-  if text then
+  if type(text) == "table" then
     local newText = ""
     for i = 1, #text do
-      if i == #text then
-        newText = newText .. text[i]
-        break
-      end
       newText = newText .. text[i] .. " "
     end
     text = newText
-  else
-    text = stationName
   end
 
   monitor.clear()
@@ -81,28 +156,69 @@ function setMonitorText(text)
 end
 
 -- Station
-function setSchedule(requestedSchedule)
-  if not requestedSchedule then
-    error("No schedule provided")
-    return
-  end
-
-  local items = barrel.list()
-
-  if #items == 0 then
-    error("No items in barrel")
-    return
-  else
-    for i = 1, #items do
-      local item = barrel.getItemDetail(i)
-      if item.name == "create:schedule" then
-        if item.displayName == requestedSchedule then
-          station.setSchedule(item)
-        end
-      end
+scheduleGUI = {
+  [1] = {
+    name = "Destination",
+    required = true,
+    action = function()
+      destination = io.read()
+      confirmAction("Are you sure?")
     end
-    error("Schedule not found")
+  },
+  [2] = {
+    name = "Finish",
+    action = function()
+      scheduleCreated = true
+    end
+  }
+}
+
+function setSchedule()
+  if station.isTrainPresent() == false then
+    error("No train present")
+    return
   end
+
+  start = stationName
+  destination = nil
+
+  local schedule = {}
+  while not scheduleCreated do
+    displayGUI(scheduleGUI, "Schedule")
+    local event, key = os.pullEvent("key")
+    onKeyPressed(key, scheduleGUI)
+  end
+  clear()
+  if not destination then
+    error("No destination provided")
+    return
+  end
+  station.setSchedule({
+    cyclic = false, -- Does the schedule repeat itself after the end has been reached?
+    entries = { -- List of entries, each entry contains a single instruction and multiple conditions.
+      {
+        instruction = {
+          id = "create:destination", -- The different instructions are described below.
+          data = { -- Data that is stored about the instruction. Different for each instruction type.
+            text = destination,
+          },
+        },
+        conditions = {    -- List of lists of conditions. The outer list is the "OR" list
+          {               -- and the inner lists are "AND" lists.
+            {
+              id = "create:delay", -- The different conditions are described below.
+              data = { -- Data that is stored about the condition. Different for each condition type.
+                value = 5,
+                time_unit = 1,
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  displayMessage("Schedule set")
+  scheduleCreated = false
 end
 
 function setStationName(name)
@@ -121,8 +237,14 @@ function setStationName(name)
     return
   end
 
+  if string.len(name .. " - " .. computerID) > termX then
+    error("Name too long")
+    return
+  end
+
   station.setStationName(name)
   stationName = station.getStationName()
+  clear()
   displayMessage("Station name set to: " .. name)
 end
 
@@ -195,10 +317,10 @@ end
 
 -- Utils
 function clear()
-  setMonitorText()
+  setMonitorText(stationName)
   term.clear()
   term.setCursorPos(1, 1)
-  displayHeader()
+  displayHeader(stationName)
 
   if id then
     rednet.send(id, "Screen cleared", protocol)
@@ -292,8 +414,6 @@ registeredCommands = {
   }
 }
 
-commandList = {}
-
 function executeCommand(command, commandList)
   for i = 1, #commandList do
     if string.lower(command[1]) == commandList[i].name then -- Command found
@@ -345,12 +465,14 @@ end
 
 -- [[MAIN]] --
 function main()
-  displayHeader()
+  term.clear()
+  term.setCursorPos(1, 1)
+  displayHeader(stationName)
 
   while true do
     receiveCommands()
   end
 end
 
-setMonitorText()
+setMonitorText(stationName)
 main()
