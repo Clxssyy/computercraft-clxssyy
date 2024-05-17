@@ -42,10 +42,17 @@ end
 function handleMessage(senderID, messageReceived, senderProtocol)
   if messageReceived.type == "message" then
     term.setTextColor(receiveColor)
-    print("\n[" .. senderID .. "]" .. receiveSymbol .. " " .. messageReceived.message)
+    term.clearLine()
+    local _, y = term.getCursorPos()
+    term.setCursorPos(1, y)
+    print("[" .. senderID .. "]" .. receiveSymbol .. " " .. messageReceived.message)
     term.setTextColor(textColor)
     return
   elseif messageReceived.type == "command" then
+    term.clearLine()
+    local _, y = term.getCursorPos()
+    term.setCursorPos(1, y)
+    term.setTextColor(textColor)
     executeCommand(messageReceived.command)
     return
   end
