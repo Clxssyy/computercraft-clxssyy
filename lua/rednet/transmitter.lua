@@ -167,7 +167,25 @@ commands = {
     [2] = {
       name = "help",
       description = "Display help",
-      usage = "help",
+      usage = "help <command>",
+      handler = function(input)
+        if not input[1] then
+          error("Usage: help <command>")
+          return
+        end
+
+        for commandIndex, command in pairs(commands["system"]) do
+          if input[1] == command.name then
+            term.setTextColor(colors.yellow)
+            print("Name: " .. command.name)
+            print("Description: " .. command.description)
+            print("Usage: " .. command.usage)
+            term.setTextColor(textColor)
+            return
+          end
+        end
+        error("Command not found")
+      end
     }
   },
   ["remote"] = {
