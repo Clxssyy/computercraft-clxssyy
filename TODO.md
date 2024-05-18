@@ -1,1 +1,2 @@
 - Add suboptions to help command
+- Update README

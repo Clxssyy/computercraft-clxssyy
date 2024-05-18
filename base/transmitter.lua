@@ -65,6 +65,15 @@ function error(message)
   term.setTextColor(textColor)
 end
 
+-- verify input
+function verifyInput(input)
+  if not input then
+    error("Usage error")
+    return false
+  end
+  return true
+end
+
 -- Turn a string into a table
 function stringToTable(input, separator)
   local t = {}
@@ -210,16 +219,15 @@ commands = {
       name = "test",
       description = "Test command",
       usage = "test",
-      handler = function()
-        print("Test command")
-      end,
       options = {
         {
           name = "option",
           description = "Option description",
           usage = "option <value>",
           handler = function(input)
-            print("Option: " .. input[1])
+            if verifyInput(input) then
+              print("Option: " .. input[1])
+            end
           end,
           options = {
             {
