@@ -14,7 +14,7 @@ systemCommandPrefix = "!"
 protocol = "classy"
 listenProtocol = protocol
 sendProtocol = protocol
-hostName = tostring(computerID)
+hostName = "Label - " .. computerID
 
 computerLabel = os.setComputerLabel(hostName)
 
@@ -36,6 +36,9 @@ else
   rednet.open(peripheral.getName(peripheral.find("modem")))
   rednet.host(protocol, hostName)
 end
+
+-- verify commands have no conflicting names
+-- verify hostname isn't too long
 
 -- [[UTILS]] --
 -- handle received messages
