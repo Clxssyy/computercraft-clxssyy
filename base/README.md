@@ -16,7 +16,7 @@
     -- your code
   end
   ```
-  - use stringToTable() & tableToString() to swap between them easily
+  - use stringToTable(input, separater) & tableToString(separater) to swap between them easily
     - stringToTable() for single parameter
     - input[index] for multiple parameters
 
