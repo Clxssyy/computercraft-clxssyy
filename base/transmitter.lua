@@ -66,13 +66,25 @@ function error(message)
 end
 
 -- Turn a string into a table
--- TODO change name
-function split(input, separator)
+function stringToTable(input, separator)
   local t = {}
   for str in string.gmatch(input, "([^" .. separator .. "]+)") do
     table.insert(t, str)
   end
   return t
+end
+
+-- Turn a table into a string
+function tableToString(input, separator)
+  local str = ""
+  for i = 1, #input do
+    if i == #input then
+      str = str .. input[i]
+      break
+    end
+    str = str .. input[i] .. separator
+  end
+  return str
 end
 
 -- Display the header
@@ -160,7 +172,7 @@ end
 
 commands = {
   ["system"] = {
-    [1] = {
+    {
       name = "clear",
       description = "Clear the terminal",
       usage = "clear",
@@ -171,7 +183,7 @@ commands = {
         displayHeader(headerText)
       end
     },
-    [2] = {
+    {
       name = "help",
       description = "Display help",
       usage = "help <command>",
@@ -193,16 +205,44 @@ commands = {
         end
         error("Command not found")
       end
+    },
+    {
+      name = "test",
+      description = "Test command",
+      usage = "test",
+      handler = function()
+        print("Test command")
+      end,
+      options = {
+        {
+          name = "option",
+          description = "Option description",
+          usage = "option <value>",
+          handler = function(input)
+            print("Option: " .. input[1])
+          end,
+          options = {
+            {
+              name = "suboption",
+              description = "Suboption description",
+              usage = "suboption <value>",
+              handler = function(input)
+                print("Suboption: " .. input[1])
+              end
+            }
+          }
+        }
+      },
     }
   },
   ["remote"] = {
-    [1] = {
+    {
       name = "message",
       description = "Send a message to a computer",
       usage = "message <id> <message>",
       handler = message
     },
-    [2] = {
+    {
       name = "run",
       description = "Run a local command on a computer",
       usage = "run <id> <command>",
@@ -221,27 +261,46 @@ function receiveMessages()
   end
 end
 
-function executeCommand(input)
-  if type(input) == "table" and input[1]:sub(1, 1) == systemCommandPrefix then
-    input[1] = input[1]:sub(2)
-  else
-    input = split(input, " ")
-  end
-  
-  if input[1] == "" then
-    error("No command entered")
-    return
-  else
-    for commandIndex, command in pairs(commands["system"]) do
-      if input[1] == command.name then
-        table.remove(input, 1)
-        command.handler(input)
+function commandHandler(command, commandList)
+  for i = 1, #commandList do
+    if string.lower(command[1]) == commandList[i].name then -- Command found
+      if commandList[i].handler then -- Check for a handler
+        if #command == 1 then -- Command has no arguments
+          commandList[i].handler()
+          return
+        elseif #command > 1 and not commandList[i].options then -- Command has arguments
+          table.remove(command, 1)
+          commandList[i].handler(command)
+          return
+        end
+      end
+
+      if commandList[i].options then -- heck for options
+        if #command == 1 then
+          error("Usage error") -- No options provided
+          return
+        end
+
+        commandList = commandList[i].options
+        table.remove(command, 1)
+        commandHandler(command, commandList)
         return
       end
     end
-    error("Command not found")
-    return
   end
+  error("Command not found") -- Command not found
+end
+
+function executeCommand(input)
+  if type(input) ~= "table" then
+    input = stringToTable(input, " ")
+  else
+    if input[1]:sub(1, 1) == systemCommandPrefix then
+      input[1] = input[1]:sub(2)
+    end
+  end
+  
+ commandHandler(input, commands["system"])
 end
 
 function executeRemoteCommand(input)
@@ -292,7 +351,7 @@ function sendMessages()
   term.setTextColor(sendColor)
   io.write(sendSymbol .. " ")
   local input = io.read()
-  input = split(input, " ")
+  input = stringToTable(input, " ")
   term.setTextColor(textColor)
 
   if not input[1] then

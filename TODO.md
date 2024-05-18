@@ -1,1 +1,1 @@
-[ ] - Remote scheduling
+- Add suboptions to help command
