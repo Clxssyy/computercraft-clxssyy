@@ -85,6 +85,16 @@ function error(message)
   term.setTextColor(textColor)
 end
 
+function printRemote(message)
+  if remoteID then
+    rednet.send(remoteID, {
+      type = "message",
+      message = message
+    }, sendProtocol)
+    return
+  end
+end
+
 -- verify input
 function verifyInput(input)
   if not input then
@@ -246,6 +256,7 @@ commands = {
           usage = "option <value>",
           handler = function(input)
             if verifyInput(input) then
+              printRemote("Option: " .. input[1])
               print("Option: " .. input[1])
             end
           end,
@@ -255,7 +266,10 @@ commands = {
               description = "Suboption description",
               usage = "suboption <value>",
               handler = function(input)
-                print("Suboption: " .. input[1])
+                if verifyInput(input) then
+                  printRemote("Suboption: " .. input[1])
+                  print("Suboption: " .. input[1])
+                end
               end
             }
           }
@@ -296,10 +310,24 @@ function commandHandler(command, commandList)
         if #command == 1 then -- Command has no arguments
           commandList[i].handler()
           return
-        elseif #command > 1 and not commandList[i].options then -- Command has arguments
-          table.remove(command, 1)
-          commandList[i].handler(command)
-          return
+        elseif #command > 1 then -- Command has arguments
+          if not commandList[i].options then
+            table.remove(command, 1)
+            commandList[i].handler(command)
+            return
+          else
+            for j = 1, #commandList[i].options do
+              if string.lower(command[2]) == commandList[i].options[j].name then
+                table.remove(command, 1)
+                commandList = commandList[i].options
+                commandHandler(command, commandList)
+                return
+              end
+            end
+            table.remove(command, 1)
+            commandList[i].handler(command)
+            return
+          end
         end
       end
 
