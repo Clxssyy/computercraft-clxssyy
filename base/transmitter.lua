@@ -52,17 +52,34 @@ function handleMessage(senderID, messageReceived, senderProtocol)
     term.setTextColor(textColor)
     return
   elseif messageReceived.type == "command" then
+    remoteID = senderID
     term.clearLine()
     local _, y = term.getCursorPos()
     term.setCursorPos(1, y)
     term.setTextColor(textColor)
     executeCommand(messageReceived.command)
+    remoteID = nil
+    return
+  elseif messageReceived.type == "error" then
+    term.setTextColor(colors.red)
+    term.clearLine()
+    local _, y = term.getCursorPos()
+    term.setCursorPos(1, y)
+    print("[" .. senderID .. "]" .. receiveSymbol .. " " .. messageReceived.message)
+    term.setTextColor(textColor)
     return
   end
 end
 
 -- display error messages
 function error(message)
+  if remoteID then
+    rednet.send(remoteID, {
+      type = "error",
+      message = message
+    }, sendProtocol)
+    return
+  end
   term.setTextColor(colors.red)
   print("[!] " .. message)
   term.setTextColor(textColor)
