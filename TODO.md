@@ -1,2 +1,6 @@
 - Add suboptions to help command
 - Update README
+- verify commands have no conflicting names
+- verify hostname isn't too long
+- potentially change remote to use prefix instead of system
+- more support for remote commands
