@@ -4,3 +4,7 @@
 - verify hostname isn't too long
 - potentially change remote to use prefix instead of system
 - more support for remote commands
+- database / mainframe
+  - commands to go along with this
+- variables
+  - name : computerid, if id is string check list (besides all id)
