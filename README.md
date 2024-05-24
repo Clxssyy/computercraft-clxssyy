@@ -1,6 +1,6 @@
 # Tweaked.cc Scripts
 
-Various scripts that extend the `base`'s ability to send and recieve messages between systems.
+Various scripts that extend the `base`'s ability to send and recieve messages between systems. Along with some other side projects.
 
 ## Features
 
