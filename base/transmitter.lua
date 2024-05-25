@@ -244,37 +244,6 @@ commands = {
         end
         error("Command not found")
       end
-    },
-    {
-      name = "test",
-      description = "Test command",
-      usage = "test",
-      options = {
-        {
-          name = "option",
-          description = "Option description",
-          usage = "option <value>",
-          handler = function(input)
-            if verifyInput(input) then
-              printRemote("Option: " .. input[1])
-              print("Option: " .. input[1])
-            end
-          end,
-          options = {
-            {
-              name = "suboption",
-              description = "Suboption description",
-              usage = "suboption <value>",
-              handler = function(input)
-                if verifyInput(input) then
-                  printRemote("Suboption: " .. input[1])
-                  print("Suboption: " .. input[1])
-                end
-              end
-            }
-          }
-        }
-      },
     }
   },
   ["remote"] = {
