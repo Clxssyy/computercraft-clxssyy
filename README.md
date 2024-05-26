@@ -11,6 +11,10 @@ Various scripts that extend the `base`'s ability to send and recieve messages be
   - Functions and text messages
 - Easily add system commands
 
+### Shop
+
+Shop terminal for selling items
+
 ## Usage
 
 You could use this system as a way to easily add communication between all of your systems. Look at the commands folder for example commands.
